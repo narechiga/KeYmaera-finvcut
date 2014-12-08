@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <description url="http://i12ww.ira.uka.de/~key/KeYDists/KeY_Feature/">
+      KeY 1.5.0 Nightly Build
+   </description>
+   <feature url="features/KeY_Feature_2.1.jar" id="KeY_Feature" version="2.1"/>
+</site>

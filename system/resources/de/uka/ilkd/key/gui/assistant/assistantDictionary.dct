@@ -1,0 +1,165 @@
+[rules]
+eliminate_variable_decl = "Through away the variable declarations. They are mainly for parsing purposes."
+
+generalisation = "The <b>generalization</b> allows for characterizing the reachable states of a program by a stronger formula."
+
+generalisation_fresh = "The <b>generalization</b> allows for characterizing the reachable states of a program by a stronger formula. Fresh means that the new formula is stronger in every context."
+
+seq_comp_generalisation = "The <b>sequential generalization</b> allows for characterizing the reachable states of the first part of a sequential program by a stronger formula."
+
+seq_comp_generalisation_fresh = "The <b>sequential generalization</b> allows for characterizing the reachable states of the first part of a sequential program by a stronger formula. Fresh means that the new formula is stronger in every context." 
+
+assignment_to_update_left = "The <b>:=</b> rule symbolically executes the assignments."
+
+assignment_to_update_right = "The <b>:=</b> rule symbolically executes the assignments."
+
+assignment_to_update_left_quan = "The <b>:=</b> rule symbolically executes the assignments."
+
+assignment_to_update_right_quan = "The <b>:=</b> rule symbolically executes the assignments."
+
+random_ass_box_left = "The <b>[:*] random</b> handles assignments of arbitrary values. These assignments are turned into universal quantifiers."
+
+random_ass_box_right = "The <b>[:*] random</b> handles assignments of arbitrary values. These assignments are turned into universal quantifiers."
+
+random_ass_dia_left = "The <b><:*> random</b> handles assignments of arbitrary values. These assignments are turned into existential quantifiers."
+
+random_ass_dia_right = "The <b><:*> random</b> handles assignments of arbitrary values. These assignments are turned into existential quantifiers."
+
+ODEDNF_left = "The <b>ODE to DNF</b> rule transforms a system of differential constraints into disjunctive normal form."
+ODEDNF_right = "The <b>ODE to DNF</b> rule transforms a system of differential constraints into disjunctive normal form."
+
+ODESolve_left = "The <b>ODE solve</b> rule replaces the continuous evolution by a formula that asserts for every possible evolution time that the value of the solution of the differential equation at that point in time satisfies the post condition. (Under the assumption that the solution satisfied the evolution domain constraint the up until this point.)"
+
+ODESolve_right = "The <b>ODE solve</b> rule replaces the continuous evolution by a formula that asserts for every possible evolution time that the value of the solution of the differential equation at that point in time satisfies the post condition. (Under the assumption that the solution satisfied the evolution domain constraint the up until this point.)"
+
+QODESolve_left = "The <b>ODE solve</b> rule replaces the continuous evolution by a formula that asserts for every possible evolution time that the value of the solution of the differential equation at that point in time satisfies the post condition. (Under the assumption that the solution satisfied the evolution domain constraint the up until this point.)"
+
+QODESolve_right = "The <b>ODE solve</b> rule replaces the continuous evolution by a formula that asserts for every possible evolution time that the value of the solution of the differential equation at that point in time satisfies the post condition. (Under the assumption that the solution satisfied the evolution domain constraint the up until this point.)"
+
+skolemize = "You can <b>abbreviate</b> terms by fresh, rigid, constant function symbols. This is for example necessary when you want are dealing with non-constant non-rigid functions. It can also be used to simplify arithmetic expressions."
+
+true_left = "We can throw <b>true</b> away in the antecedent."
+
+false_right = "We can throw <b>false</b> away in the succedent."
+
+not_left = "Move it to the other side."
+not_right = "Move it to the other side."
+
+and_left = "Assuming a conjunction? Well that means we know both things. :)"
+and_right = "Proving a conjunction? How about proving both goals separately?"
+
+or_left = "A disjunction in the antecendent means we have to make a case distinction."
+or_right  =  "A disjunction in the succedent has the same meaning as a comma in the succedent."
+
+imp_left = "Implications in the antecedent give you two cases."
+imp_right = "Implications in the succedent are the most natural thing in sequent calculus. We just move the premise to the antecedent."
+
+modality_split_right = "Split modality along sequential composition (;)."
+modality_split_left = "Split modality along sequential composition (;)."
+
+box_quest_left = "Tests are assertions on the current program state."
+box_quest_right = "Tests are assertions on the current program state."
+
+diamond_quest_left = "Tests are assertions on the current program state."
+diamond_quest_right = "Tests are assertions on the current program state."
+
+loop_inv_box_quan = "You are facing a loop. The rule <b>invariant_loop (quantified)</b> is the default rule to handle this. Try finding a loop invariant: a first-order characterization of what the effect of the loop is."
+
+loop_inv_box_fresh = "The rule <b>invariant_loop (global)</b> is a variant of the quantified version. It cancels the context instead of quantifying the changed variables. This sometimes has an advantage regarding the resulting arithmetic complexity. However, the loop invariant has to carry more information about the other symbols in the sequent."
+
+loop_var_dia = "You are facing a loop. Try finding a loop variant: a first-order characterization of what makes progress each time the loop is executed."
+
+intro_aux = "This rule lets you introduce <b>auxilary</b> variables. This can be useful for example if you need to remember initial values for later reference in invariants or variants."
+
+diff_aux = "The <b>DA differential auxiliaries</b> rule allows to introduce auxiliary variables into differential equation systems. This is sometimes necessary for proofs by differential induction."
+
+diff_aux_fresh = "The <b>DA differential auxiliaries (drop context)</b> rule allows to introduce auxiliary variables into differential equation systems. This is sometimes necessary for proves by differential induction. In the <b>drop context</b> variant of this rule the auxiliary formula has to be equivalent in all possible contexts."
+
+Eliminate_Universal_Quantifiers = "Use quantifier elimination to reduce arithmetic to an equivalent formula. Assumes <b>all</b> variables in the sequent to be universally quantified. This is always sound, but if it does not work, you may have to eliminate existential quantifiers instead.<br>This rule ignores all formulas in the sequent that do still contain modalities, updates, or substitutions."
+
+reduce_form = "Eliminate quantifiers locally, i.e., only in the selected formula, without taking the rest of the sequent into account."
+
+Find_Counterexample = "Try to try to find a <b>numeric counter example</b> to disprove this sequent and understand what may be wrong in your system."
+
+Groebner_Basis = "<b>Gr&ouml;bner Basis</b> checks whether the current sequent has a constant Gr&ouml;bner basis and is thus a universal sentence. The goal of this rule are thus similar to that of the Eliminate Universal Quantifiers rule, but the methods used are different."
+
+Eliminate_Existential_Quantifiers = "<b>Eliminate Existential Quantifiers</b> reintroduces the existential quantifiers that where replaced by <tt>MetaVariables</tt> by the all_left or ex_right rules and merges, in the progress, all branches where these variables occur into a single formula. Afterwards a quantifier elimination procedure is applied to determine whether the resulting formula is valid. You should simplify and/or close as many goals as you can before you use this rule."
+
+Sum_of_Squares = "<b>Sum of Squares</b> tries to prove the sequent to be valid universal arithmetic using Stengle's Positivstellensatz based on an encoding provided by Parrilo in 2003."
+
+Visualization_rule = "Show a view of the transition system of the hybrid program (using dotty)"
+
+IterativeReduce = "(experimental) Iteratively reduce arithmetic using quantifier elimination"
+
+loop_unwind_box = "Unwind a loop once. It replaces <tt>\\[a*\\]F</tt> by <tt>F & \\[a\\]\\[a*\\]F</tt>, i.e., the post condition holds in the current state and in all states reachable by executing the loop body at least once."
+loop_unwind_dia = "Unwinds a loop once. It replaces <tt>\\&lt;a*\\&gt;F</tt> by <tt>F | \\&lt;a\\&gt;\\&lt;a*\\&gt;</tt>, i.e., F holds in the current state or holds after one or more iterations of the loop."
+
+box_choice_right = "This rule splits a modality with a nondeterministic choice <tt>a ++ b</tt> into two sub branches. On one branch the goal is to show the postcondition if <tt>a</tt> was chosen, on the other if the choice was <tt>b</tt>."
+
+box_choice_left = "This rule splits a modality with a nondeterministic choice <tt>a ++ b</tt> into two sub cases. On case refers to the postcondition when <tt>a</tt> was chosen, and the other when the choice was <tt>b</tt>."
+
+diamond_choice_right = "This rule splits a modality with a nondeterministic choice <tt>a ++ b</tt> into two sub cases. On case refers to the postcondition when <tt>a</tt> was chosen, and the other when the choice was <tt>b</tt>."
+
+diamond_choice_left = "This rule splits a modality with a nondeterministic choice <tt>a ++ b</tt> into two sub branches. On one branch the goal is to show the postcondition if <tt>a</tt> was chosen, on the other if the choice was <tt>b</tt>."
+
+box_and_right = "The <b>[]& split box conjunction</b> rule allows you to split a conjunction below a box-modality."
+
+box_and_left = "The <b>[]& split box conjunction</b> rule allows you to split a conjunction below a box-modality."
+
+all_left  =  "The all left rule asks you for an instantiation. Just press Apply. If you really want to provide an instantiation, you can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
+ex_right  =  "The some right rule asks you for an instantiation. Just press Apply. If you really want to provide an instantiation, you can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
+
+allLeftHide = "The quantified formula has been hidden. Add it to the sequent again by applying rule 'insertHidden'. You can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
+exRightHide = "The quantified formula has been hidden. Add it to the sequent again by applying rule 'insertHidden'. You can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
+
+hide_left = "The <b>hide</b> rule allows you to remove a formula. You can add it later again if you want using the <b>Insert Hidden</b> rule that you can apply to the sequent arrow."
+
+hide_right = "The <b>hide</b> rule allows you to remove a formula. You can add it later again if you want using the <b>Insert Hidden</b> rule that you can apply to the sequent arrow."
+
+instAll  =  "You have instantiated a quantifier. Next time try to drag the term on the quantifier."
+instEx   =  "You have instantiated a quantifier. Next time try to drag the term on the quantifier."
+
+int_induction  = "It looks like you are trying to prove a loop. Do you want to:
+	    <ul> <li> bite into your desk </li>
+    		 <li> postpone till tomorrow </li>
+    		 <li> despair and give up now? </li> </ul>" 
+
+applyEqRigid = "Alternatively you can drag and drop the equation on the term you want to replace."
+applyEq = "Alternatively you can drag and drop the equation on the term you want to replace."
+
+Plot_Trajectory = "<b>Plot Trajectory</b> allows you to create a plot of the selected differential equation system based on numerical simulation."
+
+make_insert_eq = "Alternatively, you can click on the term where you want to apply the equation and use rule <tt>apply_eq</tt>"
+make_insert_eq_nonrigid = "Alternatively, you can click on the term where you want to apply the equation and use rule <tt>apply_eq</tt>"
+
+cut_direct_r = "The rule <b>cut_direct_r</b> is rather useless. You may looking for rule <tt>cut</tt> which can be found by clicking on the sequent arrow."
+cut_direct_l = "The rule <b>cut_direct_l</b> is rather useless. You may looking for rule <tt>cut</tt> which can be found by clicking on the sequent arrow."
+
+Skolemize_Non_Rigids_Tactic = "<b>skolemize</b> abbreviates all <b>non-rigids</b> functions by fresh constant symbols. Eliminate Universal Quantifiers is then applicable afterwards."
+
+methodCall = "You have executed a method call. The if cascade is used to resolve the dynamical binding of methods."
+methodCallWithAssignment = "You have executed a method call. The if-cascade is used to resolve the dynamical binding of methods."
+
+
+whileInvBox = "When you have annotated the loop invariant in the source code, you do not need to enter the invariant manually. Further you can then set the strategy option 'Loop Treatment' to 'Invariant', which causes the invariant rule to be applied automatically." 
+whileInvDiamond = "When you have annotated the loop invariant in the source code, you do not need to enter the invariant manually. Using this rule will most probably urge you to do an induction. It is often easier to use a variant (non-negative, steady decreasing expression), so you should consider using the rule 'whileInvDiamondDec' instead." 
+whileInvDiamondDec = "When you have annotated the loop invariant in the source code, you do not need to enter the invariant manually. Further you can then set the strategy option 'Loop Treatment' to 'Invariant', which causes the invariant rule to be applied automatically." 
+
+[toolbar]
+goalBack = "You have set back a goal. For pruning complete subtrees, right click on the node above the subtree in the proof tree view and select Prune Proof."
+applyHeuristics = "The strategies can be focused on subtrees or formulas. Highlight the sequent or formula and perform a SHIFT+left mouse click."
+runSIMPLIFY = "KeY supports different decision procedures. You can select them in <tt>Options</tt> menu."
+runICS = "KeY supports different decision procedures. You can select them in <tt>Options</tt> menu."
+runYICES = "KeY supports different decision procedures. You can select them in <tt>Options</tt> menu."
+reuse = "You have started reuse of proofs. Switching between single and multi step mode is possible by right clicking on the button."
+
+[menu]
+file = "File extensions 
+	<ul> <li> <tt>.key</tt>: Problem Files (load)</li> 
+             <li> <tt>.proof</tt> Proof Files (load or save)</li>
+             <li> <tt>.tex</tt> Save proof tree as TeX file (save) </li> </ul>"
+view = "<tt>Use pretty syntax</tt> prints function symbols like <tt>+,-,&gt;</tt> infix."
+proof = "Abandon task, proof statistics, active taclet options, etc."
+options = "Configure KeY for your purposes. Minimize interaction reduces user interactions considerably."
+tools = "Extract specification, specification browsers etc."
+

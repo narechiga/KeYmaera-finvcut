@@ -1,0 +1,1149 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<description>
+	<welcometext>
+		<![CDATA[
+		<h3>KeYmaera Tutorial</h3>
+		<p>
+		    Welcome to the KeYmaera Tutorial.
+		    In this tutorial, you will learn how to use KeYmaera in practice to prove more complicated properties.
+		    This tutorial assumes that you are familiar with the lecture slides and have read at least up to Section 3.5 in the following background article:
+		    <blockquote>
+		        Andr&eacute; Platzer.<br />
+                <a href="http://arxiv.org/pdf/1205.4788.pdf">Dynamic logics of dynamical systems</a>.<br />
+                arXiv <a href="http://arxiv.org/pdf/1205.4788.pdf">1205.4788</a>, 2012.
+	        </blockquote>
+	        Later exercises assume that you have read most of this survey article.
+		    The exercises in this tutorial give you a chance to check whether you have mastered the material.
+		    Click on the exercises in the folders on the left to get started.
+	    </p>
+	    <p>
+		    Most of the exercises intentionally <b>require you to interact with KeYmaera</b> so that you learn how proofs work by doing them.
+		    They disable some of KeYmaera's automatic proof strategies in order to give you a chance to show off your skills.
+		    You will need this skill to succeed in proving properties of very complex hybrid systems.
+		    If you want to, you are also invited to do some of the proofs fully manually and compare with what KeYmaera's automated provers would have done. Can you find a faster proof?
+	    </p>
+	    <p>
+		    More information and reading material about KeYmaera can be found at
+		    <center><a href="http://symbolaris.com/info/KeYmaera.html">http://symbolaris.com/info/KeYmaera.html</a></center>
+		    The most comprehensive description of the KeYmaera approach can be found in the following book:
+		    <blockquote>
+		        Andr&eacute; Platzer.<br />
+                <a href="http://symbolaris.com/lahs/">Logical Analysis of Hybrid Systems</a>:<br />
+                <a href="http://symbolaris.com/lahs/">Proving Theorems for Complex Dynamics</a>.<br />
+                Springer, 2010. ISBN 978-3-642-14508-7.
+	        </blockquote>
+	    </p>
+	    <p>
+	        We hope you use this opportunity to learn about hybrid systems proving and understand how it works.
+        </p>
+		]]>
+	</welcometext>
+	<tutorials>
+		<tutorial name="Overview">
+			<description>
+				Overview of the KeYmaera input format.
+				This folder describes the <kbd>.key</kbd> input format for writing new problems and solving them with KeYmaera.
+			</description>
+			<exercise>
+				<title>Input File Format</title>
+				<description>
+					<![CDATA[
+					<h3 id="keymaerafile">Structure of KeYmaera Problem Specification File</h3>
+
+					<p>
+					This tutorial contains many preloaded exercises.
+					If you want to write new problem files, simply use an editor, create a <kbd>.key</kbd> input file and use <i>File-&gt;Load</i> to open it in KeYmaera.
+					You can also use the KeYmaera plugin for Eclipse if you prefer.
+					A <kbd>.key</kbd> input file for KeYmaera specifies both the operational model of your hybrid system (using the notation of hybrid programs)
+					and the correctness property that you want to verify.
+					The verification problem is specified in a block called <kbd><span class="keyword">\problem</span> {...}</kbd> that contains the problem description as a formula.
+					This block contains a single formula of differential dynamic logic&nbsp;(dL).
+					For instance, this formula can characterize the initial state of the system using implications,
+					the operational system specification using hybrid programs,
+					and the safety/liveness/reactivity/controllability/... properties to show using modalities.
+					</p>
+
+					<p>
+					The .key file format is quite flexible (there is a <a href="http://dx.doi.org/10.1007/978-3-540-69061-0_17">full description of KeY files</a> with all details except the description of logical formulas in KeYmaera</a>).
+					The canonical case has the following form
+					</p>
+
+					<pre>
+	<span class="keyword">\sorts</span> {
+	  /* For QdL only: declare two additional sorts C and D */
+	  <span class="primitiveType">C</span>;
+	  <span class="primitiveType">D</span>;
+	}
+	<span class="keyword">\functions</span> {
+	  <span class="comment">/* symbolic parameter declarations */</span>
+	  <span class="comment">/* they cannot change their values at runtime */</span>
+	  <span class="primitiveType">R</span> para1;
+	  <span class="primitiveType">R</span> para2;
+	  /* declare a function as external, meaning it should be interpreted */
+	  /* by the arithmetic backends */
+	  \external R Sqrt(R);
+	  /* For QdL only: declare a function that might be updated with 3 parameters */
+	  \nonRigid[Location] C f(R,R,D);
+	}
+
+	<span class="keyword">\programVariables</span> {
+		<span class="comment">/* state variable declarations */</span>
+		<span class="primitiveType">R</span> x;
+		<span class="primitiveType">R</span> y;
+		<span class="primitiveType">R</span> z;
+	}
+
+	<span class="keyword">\problem</span> {
+		AFormula
+	}
+					</pre>
+					Here AFormula is a formula in differential dynamic logic (dL) following the syntax of dL formulas.
+					This logical formula specifies the property that you are interested in.
+					It will also include the system dynamics inside modalities following the syntax of hybrid programs.
+					Often (but not always), the formula AFormula has the form
+					<center>
+					<kbd>&phi; -&gt; \[&alpha;\] &psi;</kbd>
+					</center>
+					of a safety property where <kbd>&phi;</kbd> is the formula specifying the precondition for the initial state and <kbd>&alpha;</kbd> is the hybrid program describing the system behavior and <kbd>&psi;</kbd> is the formula specifying the postcondition.
+					This formula expresses that, when starting in a state satisfying <kbd>&phi;</kbd>, all behavior of <kbd>&alpha;</kbd> will lead to states satisfying formula <kbd>&psi;</kbd> (safety).
+					Another common case for AFormula is
+					<center>
+					<kbd>&phi; -&gt; \&lt;&alpha;\&gt; &psi;</kbd>
+					</center>
+					This formula expresses that, when starting in a state satisfying <kbd>&phi;</kbd>, there is a behavior of system <kbd>&alpha;</kbd> that can lead to a state satisfying formula <kbd>&psi;</kbd>.
+					Several other formulas including quantifiers and nested modalities can be used.
+					See syntax of formulas for full details.
+					]]>
+				</description>
+			</exercise>
+			<exercise>
+				<title>Hybrid Programs</title>
+					<description>
+						<![CDATA[
+						<table class="syntax">
+						  
+						<tr>
+						<td colspan="3" id="HP"><b>Hybrid programs</b> are a program notation for hybrid dynamical systems with interacting discrete and continuous dynamics. With typical names <kbd>&alpha;</kbd> and <kbd>&beta;</kbd>, hybrid programs are defined by the following syntax:</td>
+						</tr>
+							
+						<tr>
+							<td></td><td><kbd>&alpha;; &beta;</kbd></td><td><em>Sequential composition</em> that runs <kbd>&alpha;</kbd> first and then <kbd>&beta;</kbd> after <kbd>&alpha;</kbd> stops (<kbd>&beta;</kbd> never starts if <kbd>&alpha;</kbd> never stops)</td>
+						</tr> 
+						<!--	<tr><td/><td><kbd>&#945;@invariant(&#966;)*</kbd> </td><td>Non-deterministic repetition with attached invariant constraint <kbd>&#966;</kbd></td></tr>  -->
+							
+						<tr>
+						<td></td><td><kbd>x:=t</kbd> </td><td><em>Discrete assignment/jump</em> assigning the value of term <kbd>t</kbd> to <kbd>x</kbd></td>
+						</tr>
+							
+						<tr>
+						<td></td><td><kbd>x:=*</kbd> </td><td><em>Random assignment</em> assigns any real value to <kbd>x</kbd>, non-deterministically</td>
+						</tr>
+							
+						<tr>
+						<td></td><td><kbd>?H</kbd> </td><td><em>State assertion</em> testing whether formula <kbd>H</kbd> is true in current state (otherwise abort)</td>
+						</tr>
+							
+						<tr>
+						<td></td><td><kbd>&alpha; ++ &beta;</kbd></td><td><em>Non-deterministic choice</em> following either alternative   <kbd>&alpha;</kbd> or <kbd>&beta;</kbd></td>
+						</tr>
+							
+						<tr>
+						<td></td><td><kbd>&alpha;<sup>*</sup></kbd> </td><td><em>Non-deterministic repetition</em>, repeating <kbd>&alpha;</kbd> arbitrarily often including 0 times</td>
+						</tr>
+							
+						<tr>
+						<td></td><td nowrap="nowrap"><kbd>{x'=t,y'=s,&nbsp;H}</kbd> </td><td><em>Continuous evolution</em> along <em>differential equation system</em> with terms <kbd>t,s</kbd>, optionally with <em>evolution domain constraint</em> <kbd>H</kbd>.
+							This domain constraint <kbd>H</kbd> needs to be true <em>at every time</em> during the evolution, otherwise the system needs to stop following this continuous mode and move on.
+							You can use systems of differential equations, differential-algebraic equations, differential inequalities, and differential equations with disturbances.</td>
+						</tr>
+							
+						<tr>
+						<td></td><td><kbd>{x'=t,y'&lt;=s,y'&gt;=r,&nbsp;H}</kbd> </td><td><em>Continuous evolution</em> along <em>system of differential equations and differential inequalities</em> with terms <kbd>t,s,r</kbd>, optionally with evolution domain <kbd>H</kbd>. The time-derivative of <kbd>y</kbd> needs to stay within <kbd>r</kbd> and <kbd>s</kbd> all the time.</td>
+						</tr>
+							
+						<tr>
+						<td></td><td><kbd>{<span class="keyword">\exists</span>&nbsp;R&nbsp;u;&nbsp;(x'=t &amp; y'=s&nbsp;&amp;&nbsp;H)}</kbd> </td><td><em>Continuous evolution</em> along <em>system of differential-algebraic equations</em> with disturbance <kbd>u</kbd> (which may occur in the terms <kbd>t,s</kbd> and formula <kbd>H</kbd>), optionally with evolution domain <kbd>H</kbd>.</td>
+						</tr>
+							
+						<tr>
+						<td></td><td nowrap="nowrap"><kbd><span class="keyword">if</span>(H)&nbsp;<span class="keyword">then</span>&nbsp;&alpha;&nbsp;<span class="keyword">fi</span></kbd> </td><td><em>If-then</em> statement, performs <kbd>&alpha;</kbd> if formula/condition <kbd>H</kbd> holds at current state and does nothing otherwise</td>
+						</tr>
+							
+						<tr>
+						<td></td><td nowrap="nowrap"><kbd><span class="keyword">if</span>(H)&nbsp;<span class="keyword">then</span>&nbsp;&alpha;&nbsp;<span class="keyword">else</span>&nbsp;&beta;&nbsp;<span class="keyword">fi</span></kbd></td><td><em>If-then-else</em> statement, performs <kbd>&alpha;</kbd> if <kbd>H</kbd> holds at current state and performs <kbd>&beta;</kbd> otherwise</td>
+						</tr>
+							
+						<tr>
+						<td></td><td><kbd><span class="keyword">while</span>(H)&nbsp;&alpha;&nbsp;<span class="keyword">end</span></kbd></td><td><em>While loop</em>, repeats <kbd>&alpha;</kbd> as long as <kbd>H</kbd> holds, stops before doing <kbd>&alpha;</kbd> only if <kbd>H</kbd> is false
+							 (<kbd>&alpha;</kbd> will not be stopped in the middle just because <kbd>H</kbd> becomes false at some intermediate state during <kbd>&alpha;</kbd>).</td>
+						</tr>
+							
+						<tr>
+						<td></td><td id="vardecl"><kbd><span class="X:primitiveType">R</span> x</kbd> </td><td><em>Variable declaration</em>, declaring <kbd>x</kbd> as a real variable (either a state variable or auxiliary variable).
+							<!-- We recommend that variable names start with lowercase letters. --></td>
+						</tr>
+							
+						<tr>
+						<td></td><td><kbd><span class="X:primitiveType">R</span> x, y, z</kbd> </td><td><em>Variable declaration</em>, declaring <kbd>x</kbd>, <kbd>y</kbd>, and <kbd>z</kbd> as real variables</td>
+						</tr>
+							
+						<tr>
+						<td colspan="3">where <kbd>H</kbd> is a formula of (possibly non-linear) real arithmetic (possibly including quantifiers, but no modalities).</td>
+						</tr>
+						
+						<tr></tr>
+                        <tr><td colspan="3" id="QHP"><b>Quantified hybrid programs</b>, with typical names <kbd>&#945;</kbd> and <kbd>&#946;</kbd>, are a program notation for <webnavref ref="logic/QdL">distributed hybrid systems</webnavref> and are defined by the extending the above syntax for hybrid programs with the following cases</td></tr>
+                    	<tr><td/><td><kbd><span class="keyword">\forall</span>&#160;C&#160;i&#160;<span class="keyword">.</span>&#160;x(i):=t(i)</kbd> </td><td><em>Quantified discrete assignment</em> assigning the values of the terms <kbd>t(i)</kbd> to the <kbd>x(i)</kbd> for all <kbd>i</kbd> of type <kbd>C</kbd>.</td></tr>
+                    	<tr><td/><td><kbd><span class="keyword">\forall</span>&#160;C&#160;i&#160;<span class="keyword">.</span>&#160;x(i):=*</kbd> </td><td><em>Quantified random assignment</em> assigning any value to the <kbd>x(i)</kbd> for all <kbd>i</kbd> of type <kbd>C</kbd>.
+                    	The values are chosen nondeterministically and independently for each <kbd>i</kbd>.</td></tr>
+                    	<tr><td/><td><kbd><span class="keyword">\forall</span> C i <span class="keyword">.</span> {x(i)'=t(i), y(i)'=s(i), H(i)}</kbd> </td><td><em>Continuous evolution</em> along <em>quantified differential equation system</em> evolving <kbd>x(i)</kbd> and <kbd>y(i)</kbd> simultaneously with rates described by terms <kbd>t(i),s(i)</kbd> for all <kbd>i</kbd> of type <kbd>C</kbd>, optionally with <em>evolution domain constraint</em> <kbd>H(i)</kbd>.
+                    	This domain constraint <kbd>H(i)</kbd> needs to be true for all <kbd>i</kbd> <em>at every time</em> during the evolution, otherwise the system needs to stop following this continuous mode and move on.</td></tr>
+
+						</table>
+						]]>
+					</description>
+			</exercise>
+			<exercise>
+				<title>Formulas</title>
+				<description>
+					<![CDATA[
+					<table border="0" class="constructive" width="100%">
+
+					<tr>
+
+					<td>
+					In KeYmaera, the safety/liveness/reactivity/controllability properties that you are interested in can be specified using formulas of differential dynamic logic.
+					In these formulas, the actual hybrid system to consider can be embedded easily as a hybrid program.
+					In <abbrv title="Extended Backus-Naur Form">
+					<a href="http://en.wikipedia.org/wiki/Extended_Backus%C3%A2%C2%80%C2%93Naur_form">EBNF</a>
+					</abbrv> the syntax for these formulas looks as follows, where <kbd>&alpha;</kbd> can be any hybrid program:
+					</td>
+					</tr>
+
+					</table>
+
+					<table class="syntax">
+					  
+					<tr>
+					<td colspan="3" id="syntax"><b>Formulas of differential dynamic logic dL</b>, with typical names <kbd>&phi;</kbd> and <kbd>&psi;</kbd>, are defined by the following syntax</td>
+					</tr>
+					  
+					<tr>
+					<td>&phi;&nbsp;::=</td> 
+						<td><kbd>!&phi;</kbd></td><td><em>Negation</em> (not)</td>
+					</tr> 
+						
+					<tr>
+					<td></td><td><kbd>&phi; &amp; &psi;</kbd></td><td><em>Conjunction</em> (and)</td>
+					</tr> 
+						
+					<tr>
+					<td></td><td><kbd>&phi; | &psi;</kbd></td><td><em>Disjunction</em> (or)</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>&phi;&nbsp;-&gt;&nbsp;&psi;</kbd></td><td><em>Implication</em> (implication)</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>&phi;&nbsp;&lt;-&gt;&nbsp;&psi;</kbd></td><td><em>Biimplication</em> (equivalence)</td>
+					</tr>
+						
+					<tr>
+					<td></td><td nowrap><kbd><span class="keyword">\forall</span>&nbsp;R&nbsp;x&nbsp;.&nbsp;&phi;</kbd>
+						</td>
+						<td><em>Universal quantifier</em>: for all real values for variable <kbd>x</kbd>, formula <kbd>&phi;</kbd> holds</td>
+						
+					</tr>
+						
+					<tr>
+						
+					<td></td>
+						<td nowrap><kbd><span class="keyword">\exists</span>&nbsp;R&nbsp;x&nbsp;.&nbsp;&phi;</kbd></td>
+						<td><em>Existential quantifier</em>: for some real value for variable <kbd>x</kbd>, formula <kbd>&phi;</kbd> holds</td>
+						
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>\[&alpha;\] &phi;</kbd></td><td><em>Box-modality</em>: After all runs of hybrid program <kbd>&alpha;</kbd>, formula <kbd>&phi;</kbd> holds (safety)</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>\&lt;&alpha;\&gt; &phi;</kbd></td><td><em>Diamond-modality</em>: There is at least one run of hybrid program <kbd>&alpha;</kbd>, after which formula <kbd>&phi;</kbd> holds (liveness)</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>\[[&alpha;\]] &phi;kbd></td><td><em>Temporal-box-modality</em>: During all runs of hybrid program <kbd>&alpha;</kbd>, formula <kbd>&phi;</kbd> holds (safety throughout)</td>
+					</tr>
+						
+					<tr>
+					<td></td><td>pred</td> <td>Real arithmetic predicate expression</td>
+					</tr>
+						
+						
+					<tr></tr>
+						
+						
+					<tr>
+					<td colspan="3" id="QdL"><b>Formulas of quantified differential dynamic logic QdL</b>, with typical names <kbd>&phi;</kbd> and <kbd>&psi;</kbd>, are defined by the same syntax as dL except that <kbd>&alpha;</kbd> can be a quantified hybrid program in the modalities and that multiple sorts other than the reals <kbd><span class="primiteType">R</span></kbd> can be used:</td>
+					</tr>
+						
+					<tr>
+					<td></td><td nowrap><kbd><span class="keyword">\forall</span>&nbsp;C&nbsp;x&nbsp;.&nbsp;&phi;</kbd>
+						</td>
+						<td><em>Universal quantifier</em>: for all values of type <kbd>C</kbd> for variable <kbd>x</kbd>, formula <kbd>&phi;</kbd> holds</td>
+						
+					</tr>
+						
+					<tr>
+						
+					<td></td>
+						<td nowrap><kbd><span class="keyword">\exists</span>&nbsp;C&nbsp;x&nbsp;.&nbsp;&phi;</kbd></td>
+						<td><em>Existential quantifier</em>: for some value of type <kbd>C</kbd> for variable <kbd>x</kbd>, formula <kbd>&phi;</kbd> holds</td>
+						
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>\[&alpha;\] &phi;</kbd></td><td><em>Box-modality</em>: After all runs of quantified hybrid program <kbd>&alpha;</kbd>, formula <kbd>&phi;</kbd> holds (safety)</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>\&lt;&alpha;\&gt; &phi;</kbd></td><td><em>Diamond-modality</em>: There is at least one run of quantified hybrid program <kbd>&alpha;</kbd>, after which formula <kbd>&phi;</kbd> holds (liveness)</td>
+					</tr>
+
+					  
+					<tr>
+					<td id="predicate" colspan="3"><b>Real arithmetic predicate expressions</b> are defined by the following syntax</td>
+					</tr>
+						
+					<tr>
+					<td>pred&nbsp;::=</td><td><kbd>t &gt; s</kbd></td><td>Greater than</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>t &gt;= s</kbd></td><td>Greater equals</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>t = s</kbd></td><td>Equals</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>t != s</kbd></td><td>Not equal</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>t &lt;= s</kbd></td><td>Less equals</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>t &lt; s</kbd></td><td>Less than</td>
+					</tr>
+									</table>
+
+					<ul>
+						<li>Enriching this syntax for dDGL: You have another modality \( \), the game modality. Inside this modality you may write other modalities, sequences of modalities, choices between modalities (++) or (+-+), and repetions (^[*]) and (^&lt;*&gt;).</li>
+					</ul>
+						]]>
+					</description>
+			</exercise>
+			<exercise>
+				<title>Terms</title>
+				<description>
+					<![CDATA[
+					<table class="syntax">
+					<tr>
+					<td id="term" colspan="3"><b>Real arithmetic terms</b>, with typical names <kbd>s</kbd> and <kbd>t</kbd>, are defined by the following syntax</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>t + s</kbd></td><td>Addition</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>t - s</kbd></td><td>Subtraction</td>
+					</tr> 
+						
+					<tr>
+					<td></td><td><kbd>t * s</kbd></td><td>Multiplication</td>
+					</tr> 
+						
+					<tr>
+					<td></td><td><kbd>t / s</kbd></td><td>Division</td>
+					</tr> 
+						
+					<tr>
+					<td></td><td><kbd>t^n</kbd></td><td>Power with integer <kbd>n</kbd></td>
+					</tr> 
+						
+					<tr>
+					<td></td><td><kbd>- s</kbd></td><td>Minus</td>
+					</tr> 
+						
+					<tr>
+					<td></td><td><kbd>f(t1,...,tn)</kbd></td><td>Function application</td>
+					</tr> 
+						
+					<tr>
+					<td></td><td>VARIABLE</td><td>An arbitrary variable identifier (that has been declared)</td>
+					</tr> 
+						
+					<tr>
+					<td></td><td>NUMBER</td><td>An arbitrary decimal number</td>
+					</tr>
+
+					</table>
+					]]>
+				</description>
+			</exercise>
+		</tutorial>
+		<tutorial name="Verified Software Summer School 2012">
+			<description>
+				<![CDATA[
+				<h3>Logical Analysis of Hybrid Systems<br />The KeYmaera Approach</h3>
+				<p>
+				This tutorial contains the practical exercises used at the Verified Software Summer School 2012 for the course <i>Logical Analysis of Hybrid Systems: The KeYmaera Approach</i>.</p>
+				
+				<p>Note that KeYmaera's <b>automation is partially turned off</b> for the purpose of these exercises in order to make sure that you have a chance to learn how proving works.</p>
+				<p>
+				   Several of the examples in this tutorial (especially heater) are taken from larger case studies and isolate exactly the difficult part of the proof for you. So we have transformed the problem into a form where only the difficult steps remain for you to do.
+			    </p>
+				]]>
+			</description>
+			<exercise>
+				<title>Ex. 1 Pen&amp;Paper Modeling</title>
+				<description>
+				<![CDATA[
+				<h3>Modeling in Differential Dynamic Logic (dL)</h3>
+				<p>
+				Use Pen&amp;Paper to model a simple car control system with the following properties:
+				<ul>
+					<li>System variables should be: position x, velocity v, acceleration a, clock t</li>
+					<li>The acceleration should be the first derivative of the velocity, which again should be the first derivative of the position.</li>
+					<li>The clock should have a constant rate of 1.</li>
+					<li>The acceleration should be changed at least every 3 time units to an arbitrary new value which has to be greater than 0.</li>
+				</ul>
+				</p>
+
+				<p>
+					Formulate as a dL formula: If the velocity is initially greater than 0, then after all executions of the system above, the velocity is still greater than 0.
+				</p>
+
+				]]>
+			</description>
+			</exercise>
+			<exercise>
+				<title>Ex. 2 Continuous dynamics</title>
+				<description>
+				<![CDATA[
+					<h3>Proving a safety property of a continuous system</h3>
+					<p>
+					This is a simple system in which a car starts at some velocity v and accelerates at constant rate A along a straight lane.
+					The requirement we want to prove is that the car may never travel backward, i.e. the velocity v is always greater than or equal to zero.
+					</p>
+					<b>Exercise:</b> 
+					Load the exercise and press <i>Proof-&gt;Start</i>. The automatic strategy is able to prove this example. Look at the proof and try to understand its structure.
+				]]>
+				</description>
+             	<resources>
+             		<img>/examples/hybrid/tutorial/fig-car-accel-accel.png</img>
+                    <img>/examples/hybrid/tutorial/fig-car-accel-vel.png</img>
+                    <img>/examples/hybrid/tutorial/fig-car-accel-pos.png</img>
+             	</resources>
+				<path>/examples/hybrid/tutorial/lics1-continuous-forward.key</path>
+			</exercise>
+			<exercise>
+				<title>Ex. 3 Safety of simple car control</title>
+				<description>
+				<![CDATA[
+					<h3>Proving a safety property of a hybrid system</h3>
+					<p>
+					In this example, we introduce a discrete controller into the
+					model of the continuous car system in the previous exercise. The controller has
+					only two options: it may either cause the car to accelerate with rate
+					A&gt;0 or to brake with rate -b&lt;0.
+					</p>
+					<b>Exercise:</b>
+					<ul>
+						<li>Load the exercise and press <i>Proof-&gt;Start</i>. The automatic strategy is able to prove this example.</li>
+						<li>Investigate the resulting proof. Which loop invariant did the strategy use? Why?</li>
+					</ul>
+				]]>
+				</description>
+				<resources>
+					<img>/examples/hybrid/tutorial/fig-car-stuck-accel-accel.png</img>
+					<img>/examples/hybrid/tutorial/fig-car-stuck-accel-vel.png</img>
+					<img>/examples/hybrid/tutorial/fig-car-stuck-accel-pos.png</img>
+				</resources>
+				<path>/examples/hybrid/tutorial/lics2-hybrid-forward.key</path>
+			</exercise>
+			<exercise>
+				<title>Ex. 4 Event-triggered car</title>
+				<description>
+				<![CDATA[
+					<h3>Safety of an event-triggered car controller</h3>
+					<p>
+					While the car is driving down the lane, the controller must
+					choose when to begin decelerating so that it always stops
+					before the stop sign m.  In order to make sure that the car
+					controller does not miss the event when it is time to start
+					braking, we add an additional constraint to the
+					evolution domain of the differential equation. This models an event triggered system.  In
+					this case, the event-trigger is when the distance between
+					the car and the stop sign equals the stopping distance of
+					the car. This example shows that the system still can never
+					travel backwards.
+					</p>
+					<b>Exercise:</b>
+					<ul>
+						<li>Load the exercise in KeYmaera.</li>
+						<li>Go to your <tt>Hybrid Strategy</tt> tab and make sure that <tt>Differential Saturation</tt> is turned <b>off</b> (this disables some of KeYmaera's automation).</li> 
+						<li>Use KeYmaera to prove that the car is safe.</li>
+					</ul>
+				]]>
+				</description>
+                <hints>
+                	<hint id="4.1">
+                		You need to provide a loop invariant interactively, because KeYmaera's <tt>Differential Saturation</tt> is turned off.
+                	</hint>
+                	<hint id="4.2">
+                		Apply the <tt>ind loop invariant</tt> rule and type your invariant into the field for <tt>inv</tt>.
+                	</hint>
+                	<hint id="4.3">
+                		In order to find a good invariant, think about what you want to prove and what will always remain true about the car.
+                	</hint>
+                	<hint id="4.4">
+                		<![CDATA[
+                		The invariant is v &ge; 0
+                		]]>
+                	</hint>
+                </hints>
+				<resources>
+					<img>/examples/hybrid/tutorial/fig-car-accel-brake-accel.png</img>
+					<img>/examples/hybrid/tutorial/fig-car-accel-brake-vel.png</img>
+					<img>/examples/hybrid/tutorial/fig-car-accel-brake-pos.png</img>
+				</resources>
+				<path>/examples/hybrid/verifiedsoft/event-triggered-car.key</path>
+			</exercise>
+			<exercise>
+				<title>Ex. 5 Time-triggered car</title>
+				<description>
+				<![CDATA[
+					<h3>Time-triggered safe if braking safe</h3>
+					<p>
+					In a realistic system, the sensors on the car would take periodic measurements
+					of position x and velocity v and the controller would only execute each time those
+					sensor updates are taken. We continue with the single car traveling toward a
+					stop sign. This time we change the model so that it only receives periodic updates about its position and velocity.  The
+					time t between sensor updates is bounded by ep. Prove that the car controller
+					will always make the car stay before the traffic light if braking would.
+					</p>
+					<p>
+					Variable Definitions:
+					<ul>
+					  <li> <b>x</b> position of car</li>
+					  <li> <b>v</b> velocity of car
+					  <li> <b>a</b> acceleration of car</li>
+					  <li> <b>A</b> maximal acceleration</li>
+					  <li> <b>b</b> maximal braking</li>
+					  <li> <b>m</b> position of Stop Sign</li>
+					  <li> <b>ep</b> maximal time between reactions to sensor updates</li>
+					</ul>
+					</p>
+					<p>
+					Hint: To prove quickly, instantiate the time quantifier in the antecedent by the time
+					variable of the succedent (e.g. t5_0).
+					This is generally a good idea when working with (') ODE Solve
+					</p>
+					<b>Exercise:</b>
+					<ul>
+						<li>Load the exercise.</li>
+						<li>Go to your <tt>Hybrid Strategy</tt> tab and make sure that <tt>Differential Saturation</tt> is turned <b>off</b> (this disables some of KeYmaera's automation).</li> 
+						<li>Use KeYmaera to prove that the car is safe.</li>
+					</ul>
+				]]>
+				</description>
+				<hints>
+					<hint id="5.1">
+						The invariant necessary in this example characterizes the region where the car is still controllable.
+					</hint>
+					<hint id="5.2">
+						The invariant relates v, b, m, and x.
+					</hint>
+					<hint id="5.4">
+						The invariant needs to impose a bound on the velocity, depending on the remaining distance and brakes.
+					</hint>
+					<hint id="5.4">
+						<![CDATA[
+						The invariant is v<sup>2</sup> &lt;= 2*b*(m-x)
+						]]>
+					</hint>
+					<hint id="5.5">
+    					<![CDATA[
+						If KeYmaera branches a lot, you may want to use <i>Proof-&gt;Prune Proof</i> to try something else.
+    					]]>
+					</hint>
+				</hints>
+				<resources>
+					<img>/examples/hybrid/tutorial/fig-car-too-fast-accel.png</img>
+					<img>/examples/hybrid/tutorial/fig-car-too-fast-vel.png</img>
+					<img>/examples/hybrid/tutorial/fig-car-too-fast-pos.png</img>
+				</resources>
+				<path>/examples/hybrid/verifiedsoft/time-safe-relative.key</path>
+			</exercise>
+			<exercise>
+				<title>Demo: Model-predictive control equivalence</title>
+				<path>/examples/hybrid/tutorial/lics6-MPC-acceleration-equivalence.key.mathematica.proof</path>
+				<description>
+					<![CDATA[
+					<h3>Model-predictive control equivalence</h3>
+					<p>
+					Proves that the acceleration constraint is equivalent to braking being safe after accelerating for at most ep time units. That is, a car can accelerate for up to ep time units and then brake safely and will always stay in front of traffic light m if and only if the arithmetic constraint on acceleration holds currently.
+					</p>
+					]]>
+				</description>
+				<resources>
+					<img>/examples/hybrid/tutorial/fig-car-too-fast-accel.png</img>
+					<img>/examples/hybrid/tutorial/fig-car-too-fast-vel.png</img>
+					<img>/examples/hybrid/tutorial/fig-car-too-fast-pos.png</img>
+				</resources>
+			</exercise>
+			<exercise>
+				<title>Demo: Model-predictive control design</title>
+				<path>/examples/hybrid/tutorial/lics7-MPC.key.proof</path>
+				<description>
+					<![CDATA[
+					<h3>Model-predictive control design</h3>
+					<p>
+					Model-predictive control version of time-triggered car control. We continue with the single car travelling toward a stop sign, receiving periodic updates about its position and velocity.  The time between sensor updates is bounded by ep. Proves that the car controller will always make the car stay before the traffic light if braking would, with a model-predictive control choice for the acceleration / braking decision.
+					</p>
+					<p>
+					For an easy proof, before solving differential equations in the acceleration case (Case 1), drag the succedent to the first differential equation in the antecedent to differentially refine the antecedent of the acceleration case to be as in the conclusion, i.e., including v>=0.
+					</p>
+					]]>
+				</description>
+				<resources>
+					<img>/examples/hybrid/tutorial/fig-car-too-fast-accel.png</img>
+					<img>/examples/hybrid/tutorial/fig-car-too-fast-vel.png</img>
+					<img>/examples/hybrid/tutorial/fig-car-too-fast-pos.png</img>
+				</resources>
+			</exercise>
+			<exercise>
+				<title>Demo: Bouncing Ball</title>
+				<path>/examples/hybrid/bouncing-ball/bouncing-ball-if.key</path>
+				<description>
+					<![CDATA[
+					<h3>Bouncing ball</h3>
+					<p>
+					A fully parametric version of the bouncing ball that jumps up and down but is bounced back from the ground. This version has a fixed bouncing constant c.
+					</p>
+					]]>
+				</description>
+				<resources>
+					<img>/examples/hybrid/bouncing-ball/fig-bouncing-ball.png</img>
+				</resources>
+			</exercise>
+			<exercise>
+				<title>Ex. 6 Water tank</title>
+				<description>
+				<![CDATA[
+					<h3>Concrete water-level controller</h3>
+					<p>
+					This example models a water tank. The water level (named y) is supposed to be between 1 and 12. Another variable x is used as a clock to model delays while switching modes, because it takes time until the pump activates.
+					</p>
+
+					<p>
+					The system has two main modes:
+					<ul>
+					<li> st = 0: is the mode where water is flowing into the tank with a constant rate of 1.</li>
+					<li> st = 2: is the mode where water is draining from the tank with a constant rate of -2.</li>
+					</ul>
+					</p>
+					<p>
+					The modes st = 1 and st = 3 model the delays while switching between modes 0 and 2.
+					<ul>
+					<li> st = 1: is the mode where water is still flowing into the tank with a constant rate of 1 for another <b>2 time units</b> before switching to mode st = 2.</li>
+					<li> st = 3: is the mode where water is still draining from the tank with a constant rate of -2 for another <b>2 time units</b> beofre switching to mode st = 0</li>
+					</ul>
+					</p>
+					<p>
+						<b>Exercise:</b>
+						<ul>
+							<li>Load the example.</li>
+    						<li>Go to your <tt>Hybrid Strategy</tt> tab and make sure that <tt>Differential Saturation</tt> is turned <b>off</b> (this disables some of KeYmaera's automation).</li> 
+							<li>Press <i>Proof-&gt;Start</i>. The automatic strategy is able to prove this example using the annotated loop @invariant(...) in the input file. Inspect the proof structure and explain why the formula is valid.</li>
+					</p>
+				
+				]]>
+					
+				</description>
+				<resources>
+					<img>/examples/hybrid/water_tank/fig-water-tank.png</img>
+				</resources>
+			    <path>/examples/hybrid/publish/water_tank.key</path>
+			</exercise>
+			<exercise>
+				<title>Demo Progress</title>
+				<description>
+					<![CDATA[
+					<h3>A simple diamond property in Differential Dynamic Logic</h3>
+					<p>
+						So far, we have only considered the box-modality <kbd>\[&alpha;\]&phi;</kbd> in our examples and exercises. However there is a diamond-modality <kbd>\&lt;&alpha;\&gt;&phi;</kbd> in differential dynamic logic as well. Assume a very simple car model. The car is initially driving with speed v and constant acceleration of a (with a &gt; 0). 
+						In this demo, we show that due to its constant positive acceleration it is able to exceed every velocity bound eventually.
+					</p>
+					]]>
+				</description>
+				<path>/examples/hybrid/verifiedsoft/diamond-simple.key.proof</path>
+			</exercise>
+			<exercise>
+				<title>Ex. 7 Progress</title>
+				<description>
+					<![CDATA[
+					<h3>Diamond property do-it-yourself</h3>
+					<p>
+					So far, we have only considered the box-modality <kbd>\[&alpha;\]&phi;</kbd> in our examples and exercises. However there is a diamond-modality <kbd>\&lt;&alpha;\&gt;&phi;</kbd> in differential dynamic logic as well. Assume a very simple car model. The car is initially driving with some positive speed and constant acceleration of a (with a &gt;=0). 
+					</p>
+					<p>
+						<b>Exercise:</b>
+							Prove that the car can reach every position towards larger values of x.
+					</p>
+					]]>
+				</description>
+				<path>/examples/hybrid/verifiedsoft/diamond.key</path>
+				<hints>
+					<hint id="7.1">You will have to provide a loop variant. What is the least progress towards the goal x > p?</hint>
+					<hint id="7.2">Try talking about the initial velocity in the loop variant.</hint>
+					<hint id="7.3">Maybe you could introduce a fresh variable vo using the auxiliaries rule and initialize it with v.</hint>
+					<hint id="7.4">How much progress you make depends on how long you can evolve each time.</hint>
+					<hint id="7.5">A possible loop variant is x+n*ep*vo > p_0. Assuming vo is the initial velocity. And p_0 is the point we want to reach.</hint>
+				</hints>
+			</exercise>
+			<exercise>
+				<title>Ex. 8 Parametric water tank</title>
+				<description>
+					<![CDATA[
+					<h3>A parametric version of the water-level controller</h3>
+					<p>
+					This example models a parametric version of the water tank. Now, the water level (named y) is supposed to be between min_fill and max_fill. Another variable x is used as a clock to model delays while switching modes. The delay is bounded by a constant max_com.
+					The water level is now increased with constant rate <b>f</b>&gt;0 instead of 1 and decreased with constant rate <b>-d</b>&lt;<0 instead of -2.
+					</p>
+
+					<p>
+						The system has two main modes (for f > 0 & d > 0):
+					<ul>
+						<li> st = 0: is the mode where water is flowing into the tank with a constant rate of <b>f</b>.</li>
+						<li> st = 2: is the mode where water is draining from the tank with a constant rate of <b>-d</b>.</li>
+					</ul>
+					</p>
+					<p>
+					The modes st = 1 and st = 3 model the delays while switching between modes 0 and 2.
+					<ul>
+					<li> st = 1: is the mode where water is still flowing into the tank with a constant rate of f for <i>at most</i> <b>max_com time units</b> before switching to mode st = 2.</li>
+					<li> st = 3: is the mode where water is still draining from the tank with a constant rate of -d for <i>at most</i> <b>max_com time units</b> before switching to mode st = 0</li>
+					</ul>
+					</p>
+					<p>
+						<b>Exercise:</b> Load the example and prove that the input is a tautology. Note that in contrast to the previous exercise about water tanks, the loop invariant is not given by an <kbd>@invariant(....)</kbd> annotation for the loop.
+					</p>
+				]]>
+				</description>
+				<hints>
+					<hint id="8.1">
+						The invariant you need to provide is similar to the non-parametric water tank invariant.
+					</hint>
+					<hint id="8.2">
+						The invariant needs to talk (e.g., separately) about what holds in each mode.
+					</hint>
+					<hint id="8.3">
+						Check the initial region for helpful constraints that could be part of the invariant.
+					</hint>
+					<hint id="8.4">
+					<![CDATA[
+						One invariant is:<br/>
+						(st = 0 | st = 1 | st = 2 | st =3)<br/>
+						&amp;<br/>
+						x &gt;= 0 &amp; x &lt;= max_com<br/>
+						&amp;<br/>
+						(st =0 -&gt; (y &gt;= min_fill &amp; y &lt;= max_fill - f*max_com))<br/>
+						&amp;<br/>
+						(st = 1 -&gt; (y &gt;= min_fill+d*max_com &amp; y &lt;= max_fill - f*(max_com - x)))<br/>
+						&amp;<br/>
+						(st =2 -&gt; (y &gt;= min_fill+d*max_com &amp; y &lt;= max_fill))<br/>
+						&amp;<br/>
+						(st = 3 -&gt; (y &gt;= min_fill + d*(max_com-x) &amp; y &lt;= max_fill - f*max_com)))
+					]]>
+					</hint>
+				</hints>
+				<resources>
+					<img>/examples/hybrid/water_tank/fig-water-tank.png</img>
+				</resources>
+				 <path>/examples/hybrid/verifiedsoft/general_water_tank.key</path>
+			</exercise>
+			<exercise>
+				<title>Ex. 9* Safety of car with disturbance</title>
+				<description>
+					<![CDATA[
+					<h3>Disturbances in car dynamics</h3>
+					<p>
+					Let's go back to the car setting. Assume there are some external disturbance influences on the car dynamics such that the velocity does not evolve with exactly the differential equation <b>v'=a</b> but instead with the differential inequality <center><b>a-l &le; v' &le; a+u</b></center> where l and u are the lower and upper bounds on the disturbance, respectively. You need to show that the car controller works despite the disturbance, even in the worst case. 
+					</p>
+					<p>
+						<b>Exercise:</b> Prove that the modified car controller is still able to control the car safely in this scenario, despite the disturbance.
+					</p>
+					]]>
+				</description>
+				<hints>
+					<hint id="9.1">
+						The invariant you need characterizes the region where the car is still controllable, for all values of the disturbance.
+					</hint>
+					<hint id="9.2">
+						The invariant relates v, b, m, x, and u.
+					</hint>
+					<hint id="9.3">
+						Use differential invariants to prove differential inequalities or differential-algebraic constraints.
+					</hint>
+					<hint id="9.4">
+						<![CDATA[
+						The invariant is v^2 &lt;= 2*(b-u)*(m-x)
+						]]>
+					</hint>
+					<hint id="9.5">
+						Try to find a differential cut of a property that gets better even when accelerating.
+					</hint>
+					<hint id="9.6">
+						The differential cut is a time-variation of the test formula for the acceleration case.
+					</hint>
+					<hint id="9.7">
+						<![CDATA[
+						The differential cut is 2*(b - u)*(m - x) &gt;=  v^2 + (A + u + (b-u)) * ((A + u) * (ep-t)^2 + 2*(ep-t)*v)
+						]]>
+					</hint>
+				</hints>
+				<path>/examples/hybrid/verifiedsoft/disturbed-car.key</path>
+			</exercise>
+			<exercise>
+				<title>Demo x'=-x</title>
+				<description>
+					<![CDATA[
+					<h3>Negative exponentials can be tricky</h3>
+					<p>
+					This demo proves the following property: For an initial value greater than zero, a continuous evolution along <b>x'=-x</b> will never have a zero-crossing.
+					The proof needs differential auxiliaries.
+					</p>
+					]]>
+				</description>
+				<resources>
+					<img>/examples/hybrid/dynamical/fig-exp-.png</img>
+				</resources>
+				<path>/examples/hybrid/dynamical/exp-.key.proof</path>
+			</exercise>
+			<exercise>
+				<title>Ex. 10 Cooling down</title>
+				<description>
+					<![CDATA[
+					<h3>Temperature control - behavior while turned off</h3>
+					<p>
+						A room with a temperature <b>x</b> of more than 10 degrees within an environment with constant temperature of 10 degrees is bound to cool down. 
+						We model this system by the differential equation<br /> <b>x' = 10 - x</b>. 
+					</p>
+					
+					<p>
+						<b>Exercise:</b> Prove that if this system is started with an initial value greater than 10 it always stays greater than 10.
+					</p>
+					]]>
+				</description>
+				<hints>
+					<hint id="10.1">
+					<![CDATA[
+						Proving this is similar to proving that<br> x &lt; 0 -&gt; \[x'=-x\] x &lt; 0
+					]]>
+					</hint>
+					<hint id="10.2">
+					<![CDATA[
+						Proofs of x &lt; 0 -&gt; \[x'=-x\] x &lt; 0 need a DA differential auxiliary.
+					]]>
+					</hint>
+					<hint id="10.3">
+					<![CDATA[
+						Adding squares sometimes has more information than simple terms.
+					]]>
+					</hint>
+					<hint id="10.4">
+					<![CDATA[
+					Proofs of x &lt; 0 -&gt; \[x'=-x\] x &lt; 0 need the DA differential auxiliary y'=y/2 with x*y^2=1. 
+					]]>
+					</hint>
+					<hint id="10.5">
+					<![CDATA[
+						Consider (x-10) in place of x in the previous hints.
+					]]>
+					</hint>
+				</hints>
+				<resources>
+					<img>/examples/hybrid/heater/diffcut.png</img>
+				</resources>
+				<path>/examples/hybrid/heater/diffcut.key</path>
+			</exercise>
+			<exercise>
+				<title>Ex. 11 Heating up</title>
+				<description>
+					<![CDATA[
+					<h3>Temperature control - behavior while turned on (upper bound)</h3>
+					<p>
+					Now we put a heater into the room from the previous exercise.
+					The heater constantly increases the temperature in the room.
+					Further, we add some isolation to the room to slow down
+					temperature exchange. This is modeled by the
+					differential equation<br>
+					<b>x' = 15 + 1/2*(10-x)</b>.
+					</p>
+					<p>
+						<b>Exercise:</b> Prove that if this system is started with an initial temperature less than 40, then it always stays less than 40.
+					</p>
+					]]>
+				</description>
+				<hints>
+					<hint id="11.1">
+						Try to find a formula for DA differential auxiliaries that is similar to the DA formula used in the cooling example.
+					</hint>
+					<hint id="11.2">
+					<![CDATA[
+						What is equivalent to x &lt; 40 and contains y^2?
+					]]>
+					</hint>
+					<hint id="11.3">
+					<![CDATA[
+						See what happens if you try x*y^2=-1.
+					]]>
+					</hint>
+					<hint id="11.4">
+					<![CDATA[
+						Use (x-40)*y^2=-1.
+					]]>
+					</hint>
+				</hints>
+				<resources>
+					<img>/examples/hybrid/heater/diffcut2.png</img>
+				</resources>
+				<path>/examples/hybrid/heater/diffcut2.key</path>
+			</exercise>
+			<exercise>
+				<title>Ex. 12 Not too cold</title>
+				<description>
+					<![CDATA[
+					<h3>Temperature control - behavior while turned on (lower bound)</h3>
+					<p>
+					In the previous exercise we have shown that there is an
+					upper bound for the temperature when heating. Now we want to show that
+					of course there is a lower bound as well.
+					</p>
+					Reminder: The system is still modeled by the differential equation <b>x' = 15 + 1/2*(10-x)</b>.
+					</p>
+					<p>
+						<b>Exercise:</b> Prove that if this system is started with an initial temperature between 20 and 30, then it always stays above 15.
+					</p>
+					]]>
+				</description>
+				<resources>
+					<img>/examples/hybrid/heater/diffcut2.png</img>
+				</resources>
+				<path>/examples/hybrid/heater/diffcut3.key</path>
+				<!-- @todo hints -->
+			</exercise>
+			<exercise>
+				<title>Ex. 13 Temperature in hot cases</title>
+				<description>
+					<![CDATA[
+					<h3>Temperature control - behavior while turned on (lower bound)</h3>
+					<p>
+					So we know that there is an upper bound for certain cases
+					and a lower bound for certain cases. What happens if we
+					start with an arbitrary value above 15 degrees?
+					</p>
+					Reminder: The system is still modeled by the differential equation <b>x' = 15 + 1/2*(10-x)</b>.
+					</p>
+					<p>
+						<b>Exercise:</b> Prove that if this system is started with an initial temperature greater than 15 it always stays above 15.
+					</p>
+					]]>
+				</description>
+				<resources>
+					<img>/examples/hybrid/heater/diffcut2.png</img>
+					<img>/examples/hybrid/heater/diffcut3.png</img>
+					<img>/examples/hybrid/heater/diffcut4.png</img>
+				</resources>
+				<path>/examples/hybrid/heater/diffcut4.key</path>
+				<!-- @todo hints -->
+			</exercise>
+			<exercise>
+				<title>Ex. 14* Heater (extract)</title>
+				<description>
+					<![CDATA[
+					<h3>Temperature control with switching delays (off mode)</h3>
+					<p>
+					The differential equations considered in the previous exercises are the modes of a heater system. The outside temperature is assumed to be 10 degrees.
+					The goal of the heating system is to guarantee an inside temperature of <b>at least 15 degrees</b>. The control strategy for the heater is underspecified. 
+					However, it might only be turned off when the current temperature is <b>at least 20 degrees</b>. Due to mechanical restrictions can stay turned off for at most <b>1/2 time units</b>.
+					</p>
+					<p>
+						<b>Exercise:</b> Prove that if the current temperature is above 20 degrees, the temperature does not fall below 15 degrees within the next 1/2 time units when the heater is switched off.</b> 
+					</p>
+					]]>
+				</description>
+				<hints>
+					<hint id="14.0">Try using differential induction</hint>
+					<hint id="14.1">The input file defines a function R Log(R) as \external</hint>
+				</hints>
+				<resources>
+					<img>/examples/hybrid/verifiedsoft/cooling.png</img>
+					<img>/examples/hybrid/verifiedsoft/cooling2.png</img>
+				</resources>
+				<path>/examples/hybrid/verifiedsoft/heater-switchdelay-extract.key</path>
+			</exercise>
+			<exercise>
+				<title>Ex. 15* Heater (extract 2)</title>
+				<description>
+					<![CDATA[
+					<h3>Temperature control with switching delays (on mode)</h3>
+					<p>
+					The differential equations considered in the previous exercises are the modes of a heater system. The outside temperature is assumed to be 10 degrees.
+					The goal of the heating system is to guarantee an inside temperature of <b>at least 15 degrees</b>. The control strategy for the heater is underspecified. 
+					However, it might only be turned off when the current temperature is <b>at least 20 degrees</b>. Due to mechanical restrictions can stay turned off for at most <b>1/2 time units</b>.
+					</p>
+					<p>
+						<b>Exercise:</b> Prove that if the current temperature is above 15 degrees, the temperature rises above 20 degrees within 1/2 time units while heating.</b> 
+					</p>
+					]]>
+				</description>
+				<!-- @todo hints -->
+				<resources>
+					<img>/examples/hybrid/verifiedsoft/heating.png</img>
+					<img>/examples/hybrid/heater/diffcut4.png</img>
+				</resources>
+				<path>/examples/hybrid/verifiedsoft/heater-switchdelay-extract2.key</path>
+			</exercise>
+			<exercise>
+				<title>Demo Two cars</title>
+				<description>
+					<![CDATA[
+					<h3>Two cars</h3>
+					<p>
+					Consider the following example of two cars, proving that two cars are always safely separated. 
+					</p>
+					<p>
+    					<b>Exercise:</b> 
+    					Look at the proof and try to understand its structure and the ideas behind it.
+					</p>
+					]]>
+				</description>
+				<resources>
+					<img>/examples/hybrid/car/fig-car-control2.png</img>
+				</resources>
+				<path>/examples/hybrid/verifiedsoft/twocars.key.proof</path>
+			</exercise>
+			<exercise>
+				<title>Ex. 16* Distributed cars</title>
+				<description>
+					<![CDATA[
+					<h3>Multiple cars in Quantified Differential Dynamic Logic (QdL)</h3>
+					<p>
+					Consider the following example of two cars. It is modeled in Quantified Differential Dynamic Logic (QdL), which is the verification logic for distributed hybrid systems.
+					In QdL, the dynamics is specified for all cars at once using the notation 
+					<br><kbd>\forall C i . {x(i)'=v(i)}</kbd> in the quantified hybrid programs.
+					In this property, we consider only a follower car f and leader car l.
+					</p>
+					<p>
+						<b>Exercise:</b> Prove that the two cars do not collide
+					</p>
+					]]>
+				</description>
+				<hints>
+					<hint id="16.1">
+						Proofs in QdL work like proofs in dL except that you also manage function symbols, quantifiers, and identities.
+					</hint>
+					<hint id="16.2">
+    					<![CDATA[
+						Use <b>ind loop invariant (global)</b> for induction.
+						In (global) rules, you need to provide all facts that are inductive, including constants.
+    					]]>
+					</hint>
+					<hint id="16.3">
+						Look at the postcondition and precondition to find a good invariant.
+					</hint>
+					<hint id="16.4">
+    					<![CDATA[
+						Solve quantified differential equations using <b>(') QODE solve</b>.
+    					]]>
+					</hint>
+					<hint id="16.5">
+    					<![CDATA[
+						<b>Skolemize non-rigids</b> helps turning function symbols into real arithmetic.
+    					]]>
+					</hint>
+					<hint id="16.6">
+    					<![CDATA[
+						If KeYmaera branches a lot, you may want to use <i>Proof-&gt;Prune Proof</i> to try something else.
+    					]]>
+					</hint>
+					<hint id="16.7">
+						The effect of quantified hybrid programs on x(f) and x(l) depends on whether f equals l or not.
+					</hint>
+					<hint id="16.8">
+						if-then-else can be split into cases.
+					</hint>
+					<hint id="16.9">
+    					<![CDATA[
+						<b>Apply Eq Recursive</b> uses an equation where ever possible in the sequent.
+    					]]>
+					</hint>
+					<hint id="16.10">
+						Remember that the arithmetic of cars can be complicated.
+					</hint>
+					<hint id="16.11">
+						Have you considered using a cut?
+					</hint>
+					<!-- cut: B * xl_0  >  B * xf_0 + 1 / 2 * ((vf_0) 2 − (vl_0) 2) + (A + B) * (1 / 2 * A * (t3) 2 + t3 * vf_0) -->
+				</hints>
+				<resources>
+					<img>/examples/hybrid/qdl/fig-distributed-car-control.png</img>
+				</resources>
+				<path>/examples/hybrid/qdl/llcsimpler.key</path>
+			</exercise>
+			<exercise>
+				<title>Heater Challenge</title>
+				<description>
+					<![CDATA[
+					<h3>Hybrid heater model</h3>
+					Based on the two extracts of the heater in the earlier exercises. Prove that for this model of two rooms sharing one heater that is switched between the rooms every 1/2 time units, the temperature stays always greater or equal to 15.
+					]]>
+				</description>
+				<path>/examples/hybrid/verifiedsoft/heater-switchdelay.key</path>
+			</exercise>
+			<exercise>
+				<title>Tutorial Challenges</title>
+				<description>
+					<![CDATA[
+					<h3>Tutorial Challenges</h3>
+					<ul>
+						<li>Model an instance of the heater example with 4 rooms, 2 heaters, and a strategy for moving the heaters from room to room. Prove that your model satisfies an interesting safety property about the temperature in each room.</li>
+						<li>Prove a diamond property for the heater example.</li>
+						<li>Make the heater example with two rooms parametric w.r.t. to outside temperature, isolation, temperature exchange ratio, etc. and find suitable constraints such that it remains safe.</li>
+						<li>Model a system with an arbitrary number of cars on a single lane and prove it in QdL</li>
+						<li>Model the heater example with QdL and prove that it is safe for arbitrarily many rooms and arbitrarily many heaters (less than rooms).</li>
+						<li>Model your favorite system in KeYmaera, formalize an interesting property of it and prove the resulting differential dynamic logic formula in KeYmaera.</li>
+					</ul>
+					]]>
+				</description>
+				<hints>
+					<hint id="Challenge.1">
+						Be creative!
+					</hint>
+					<hint id="Challenge.2">
+						Be smart!
+					</hint>
+				</hints>
+			</exercise>
+
+		</tutorial>
+	</tutorials>
+</description>

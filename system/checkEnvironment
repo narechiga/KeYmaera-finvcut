@@ -1,0 +1,28 @@
+#!/bin/sh
+# standard lib location
+if [ -z "$KEY_LIB" ] ; then
+   KEY_LIB="../key-ext-jars"
+fi
+
+key_ext_jars="antlr-3.4-complete.jar log4j.jar JLink/JLink.jar orbital-core.jar orbital-ext.jar scala-library.jar scala-swing.jar recoderKey.jar commons-compress-1.4.jar jmathplot.jar"
+
+key_dev_jars="javacc.jar junit-4.4.jar"
+
+
+CLASSPATH=./binary/
+
+for i in $key_ext_jars $key_dev_jars; do
+    current_jar="$KEY_LIB/$i"
+    if [ ! -f $current_jar ]
+    then
+       echo "Cannot find $current_jar."
+       echo Copy or link the file into the
+       echo "$KEY_LIB/ directory."
+       exit 1
+    else
+       CLASSPATH=$CLASSPATH:$current_jar
+    fi
+done
+
+export CLASSPATH
+echo "CLASSPATH=$CLASSPATH" > Makefile.mk
